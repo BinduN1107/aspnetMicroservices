@@ -18,7 +18,7 @@ namespace Catalog.API.Controllers
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
-
+        [Route("[action]", Name ="GetProducts")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
@@ -27,12 +27,13 @@ namespace Catalog.API.Controllers
             return Ok(products);
         }
 
-        [HttpGet("{id:length(24)}",Name = "GetProduct")]
+        [Route("[action]/{Id}", Name = "GetProductById")]
+        [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(Product), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<Product>> GetProduct(string Id)
+        public async Task<ActionResult<Product>> GetProductById(string Id)
         {
-            var product = await _repository.GetProduct(Id);
+            var product = await _repository.GetProductById(Id);
 
             if (product == null)
             {
@@ -42,7 +43,8 @@ namespace Catalog.API.Controllers
             return Ok(product);
         }
 
-        [HttpGet("{name:length(52)}", Name = "GetProductByName")]
+        [Route("[action]/{name}", Name = "GetProductByName")]
+        [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(IEnumerable<Product>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<Product>>> GetProductByName(string name)
@@ -71,14 +73,16 @@ namespace Catalog.API.Controllers
             return Ok(product);
         }
 
+        [Route("[action]", Name = "CreateProduct")]
         [HttpPost]
         [ProducesResponseType(typeof(Product), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<Product>> CreateProduct([FromBody]Product product)
         {
             await _repository.CreateProduct(product);
-            return CreatedAtRoute("GetProduct", new { id = product.Id }, product);
+            return CreatedAtRoute("GetProductById", new { id = product.Id }, product);
         }
 
+        [Route("[action]", Name = "UpdateProduct")]
         [HttpPut]
         [ProducesResponseType(typeof(Product), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> UpdateProduct([FromBody]Product product)

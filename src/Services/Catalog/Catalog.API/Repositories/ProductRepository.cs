@@ -20,7 +20,7 @@ namespace Catalog.API.Repositories
                 .Find(p => true)
                 .ToListAsync();
         }
-        public async Task<Product> GetProduct(string id)
+        public async Task<Product> GetProductById(string id)
         {
             return await _context
                 .Products
@@ -36,7 +36,7 @@ namespace Catalog.API.Repositories
                 .Find(filter)
                 .ToListAsync();
         }
-        public async Task<IEnumerable<Product>> GetProductCategory(string categoryName)
+        public async Task<IEnumerable<Product>> GetProductByCategory(string categoryName)
         {
             FilterDefinition<Product> filter = Builders<Product>.Filter.Eq(prop => prop.Category, categoryName);
 
