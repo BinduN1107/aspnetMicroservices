@@ -10,6 +10,15 @@ services:
     volumes:
       - mongo_data:/data/db
 
+  redisdb:
+    container_name: redisdb
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
   catalog-api:
     container_name: catalog.api
     image: ${DOCKER_REGISTRY-}catalogapi
@@ -23,5 +32,21 @@ services:
       - "DatabaseSettings:MongoConnectionString=mongodb://catalogdb:27017"
     depends_on:
       - catalogdb
+
+  basket-api:
+    container_name: basket.api
+    image: ${DOCKER_REGISTRY-}basketapi
+    build:
+      context: .
+      dockerfile: D:\Microservices\aspnetMicroservice\src\Services\Basket.API\Dockerfile
+    ports:
+      -  "8081:81"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "CacheSettings:ConnectionString=redisdb:6379"
+    depends_on:
+      - redisdb
+      
 volumes:
   mongo_data:
+  redis_data:
