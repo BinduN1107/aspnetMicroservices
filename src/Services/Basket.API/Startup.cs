@@ -1,6 +1,4 @@
-﻿using Basket.API.GrpcServices;
-using Basket.API.Repositories;
-using Discount.Grpc.Protos;
+﻿using Basket.API.Repositories;
 
 namespace Basket.API
 {
@@ -12,46 +10,36 @@ namespace Basket.API
         }
 
         public IConfiguration Configuration { get; }
-
+        
         //Add Dependencies/Services in this section
-        public void ConfigureServices(IServiceCollection services)
+        public void RegisterServices(IServiceCollection Services)
         {
-            services.AddStackExchangeRedisCache(options =>
+            Services.AddControllers();
+            Services.AddEndpointsApiExplorer();
+            Services.AddSwaggerGen();
+
+            Services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = Configuration.GetValue<string>("CacheSettings:ConnectionString");
             });
+            Services.AddScoped<IBasketRepository, BasketRepository>();
 
-            services.AddScoped<IBasketRepository, BasketRepository>();
-
-            services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(o => o.Address = new Uri(Configuration["GrpcSettings:DiscountUrl"]));
-            services.AddScoped<DiscountGrpcService>();
-
-            services.AddControllers();
-            services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Basket.API", Version = "v1" });
-            });
         }
 
         //Add middleware in this section
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void SetMiddleWare(WebApplication app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            if (app.Environment.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Basket.API v1"));
+                app.UseSwaggerUI();
             }
-
-            app.UseRouting();
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.MapControllers();
+
+            app.Run();
         }
     }
 }

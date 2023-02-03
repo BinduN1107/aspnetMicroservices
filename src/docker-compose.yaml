@@ -10,38 +10,14 @@ services:
     volumes:
       - mongo_data:/data/db
 
-  basketdb:
-    container_name: basketdb
+  redisdb:
+    container_name: redisdb
     image: redis
     restart: always
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
-
-  discountdb:
-    image: postgres
-    restart: always
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin1234
-      - POSTGRES_DB=DiscountDb
-    volumes:
-      - postgre_data:/var/lib/postgresql/data 
-      
-  pgadmin:
-    container_name: pgadmin
-    image: dpage/pgadmin4
-    restart: always
-    ports:
-      - "5050:80"
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@gmail.com
-      - PGADMIN_DEFAULT_PASSWORD=admin123
-    volumes:
-      - pgadmin_data:/root/.pgadmin
 
   catalog-api:
     container_name: catalog.api
@@ -64,43 +40,13 @@ services:
       context: .
       dockerfile: D:\Microservices\aspnetMicroservice\src\Services\Basket.API\Dockerfile
     ports:
-      -  "8001:80"
+      -  "8081:81"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - "CacheSettings:ConnectionString=basketdb:6379"
+      - "CacheSettings:ConnectionString=redisdb:6379"
     depends_on:
-      - basketdb
-
-  discount-api:
-    container_name: discount.api
-    image: ${DOCKER_REGISTRY-}discountapi
-    build:
-      context: .
-      dockerfile: D:\Microservices\aspnetMicroservice\src\Services\Discount\Discount.API\Dockerfile
-    ports:
-      -  "8002:80"           
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      #- "DatabaseSettings:ConnectionString=discountdb:5432"
-    depends_on: 
-      - discountdb
+      - redisdb
       
-  discount.grpc:
-    container_name: discount.grpc
-    image: ${DOCKER_REGISTRY-}discountgrpc
-    build:  
-      context: .
-      dockerfile: D:\Microservices\aspnetMicroservice\src\Services\Discount\Discount.Grpc\Dockerfile
-    ports:
-      - "8003:80"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      #- "DatabaseSettings:ConnectionString=discountdb:5432"
-    depends_on:
-      - discountdb    
-
 volumes:
   mongo_data:
   redis_data:
-  postgre_data:
-  pgadmin_data:
