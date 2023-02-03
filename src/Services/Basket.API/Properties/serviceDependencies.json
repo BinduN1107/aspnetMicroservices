@@ -1,11 +1,3 @@
 {
-  "dependencies": {
-    "secrets1": {
-      "type": "secrets"
-    },
-    "rabbitmq1": {
-      "type": "rabbitmq",
-      "connectionId": "rabbitmq_conn_string"
-    }
-  }
+  "dependencies": {}
 }

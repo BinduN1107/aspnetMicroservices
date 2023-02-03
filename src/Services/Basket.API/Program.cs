@@ -1,10 +1,17 @@
-using Basket.API;
+namespace Basket.API
+{
+    public class program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
 
-var builder = WebApplication.CreateBuilder(args);
-
-var startup = new Startup(builder.Configuration);
-startup.RegisterServices(builder.Services);
-
-
-var app = builder.Build();
-startup.SetMiddleWare(app, builder.Environment);
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
+}
